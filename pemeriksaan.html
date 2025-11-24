@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pemeriksaan – PERKESO</title>
+  <script src="https://cdn.tailwindcss.com?disableWarnings=true"></script>
+  <script src="config.js"></script>
+</head>
+
+<body class="bg-slate-100 min-h-screen">
+
+<!-- HEADER -->
+<header class="bg-sky-800 text-white shadow">
+  <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+    <div>
+      <h1 class="text-lg font-semibold">Rekod Pemeriksaan Majikan</h1>
+      <p class="text-xs text-sky-200">Akta 4 & Akta 800</p>
+    </div>
+    <button onclick="logout()" class="text-xs bg-white text-red-600 px-3 py-1 rounded">Log Keluar</button>
+  </div>
+</header>
+
+<!-- BODY -->
+<main class="max-w-5xl mx-auto px-4 py-4 space-y-6">
+
+  <!-- Pegawai Info -->
+  <div id="pegawaiInfo" class="text-sm text-slate-600"></div>
+
+  <!-- BACK BUTTON -->
+  <button onclick="location.href='index.html'"
+    class="bg-slate-700 text-white px-3 py-1 rounded-lg text-xs mb-2">
+    ← Kembali ke Dashboard
+  </button>
+
+  <!-- MENU -->
+  <div class="bg-white rounded-2xl p-4 shadow flex flex-wrap gap-2">
+    <button onclick="location.href='index.html'"
+      class="px-4 py-2 rounded-lg bg-slate-200 text-sm">Dashboard</button>
+
+    <button onclick="location.href='pemeriksaan.html'"
+      class="px-4 py-2 rounded-lg bg-sky-700 text-white text-sm">Rekod Pemeriksaan</button>
+
+    <button onclick="location.href='laporan.html'"
+      class="px-4 py-2 rounded-lg bg-slate-200 text-sm">Laporan</button>
+
+    <button onclick="location.href='ai.html'"
+      class="px-4 py-2 rounded-lg bg-slate-200 text-sm">AI Pemeriksa</button>
+  </div>
+
+  <!-- FORM -->
+  <div class="bg-white rounded-2xl p-5 shadow space-y-4">
+
+    <h2 class="text-base font-semibold text-sky-800">Borang Pemeriksaan</h2>
+
+    <!-- Kod Majikan -->
+    <div>
+      <label class="text-xs">Kod Majikan</label>
+      <div class="flex gap-2">
+        <input id="kodMajikan" class="border rounded-lg px-3 py-2 w-full text-sm" placeholder="Contoh: J1234567" />
+        <button onclick="cariMajikan()" class="px-3 py-2 bg-slate-700 text-white text-xs rounded-lg">Cari</button>
+      </div>
+    </div>
+
+    <div>
+      <label class="text-xs">Nama Majikan</label>
+      <input id="namaMajikan" class="border rounded-lg px-3 py-2 w-full text-sm bg-slate-100" disabled />
+    </div>
+
+    <div>
+      <label class="text-xs">Alamat</label>
+      <input id="alamatMajikan" class="border rounded-lg px-3 py-2 w-full text-sm bg-slate-100" disabled />
+    </div>
+
+    <div>
+      <label class="text-xs">No Telefon</label>
+      <input id="telefonMajikan" class="border rounded-lg px-3 py-2 w-full text-sm bg-slate-100" disabled />
+    </div>
+
+    <!-- Tarikh + Pegawai + Status -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div>
+        <label class="text-xs">Tarikh Pemeriksaan</label>
+        <input id="tarikh" type="date" class="border rounded-lg px-3 py-2 w-full text-sm" />
+      </div>
+
+      <div>
+        <label class="text-xs">Pegawai Pemeriksa</label>
+        <input id="pegawai" class="border rounded-lg px-3 py-2 w-full text-sm bg-slate-100" disabled />
+      </div>
+
+      <div>
+        <label class="text-xs">Status Pematuhan</label>
+        <select id="status" class="border rounded-lg px-3 py-2 w-full text-sm">
+          <option value="Patuh">Patuh</option>
+          <option value="Tidak Patuh">Tidak Patuh</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Tunggakan -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div>
+        <label class="text-xs">Tunggakan Akta 4 (RM)</label>
+        <input id="akta4" type="number" class="border rounded-lg px-3 py-2 w-full text-sm" value="0" />
+      </div>
+      <div>
+        <label class="text-xs">Tunggakan Akta 800 (RM)</label>
+        <input id="akta800" type="number" class="border rounded-lg px-3 py-2 w-full text-sm" value="0" />
+      </div>
+      <div>
+        <label class="text-xs">FCLB Akta 4 (RM)</label>
+        <input id="fclb4" type="number" class="border rounded-lg px-3 py-2 w-full text-sm" value="0" />
+      </div>
+      <div>
+        <label class="text-xs">FCLB Akta 800 (RM)</label>
+        <input id="fclb800" type="number" class="border rounded-lg px-3 py-2 w-full text-sm" value="0" />
+      </div>
+    </div>
+
+    <!-- Catatan -->
+    <div>
+      <label class="text-xs">Catatan</label>
+      <textarea id="catatan" class="border rounded-lg px-3 py-2 w-full text-sm"></textarea>
+    </div>
+
+    <button onclick="simpanPemeriksaan()"
+      class="bg-sky-700 text-white rounded-lg py-2 px-4 text-xs">
+      Simpan Pemeriksaan
+    </button>
+
+  </div>
+
+  <!-- SENARAI MAJIKAN BERMASALAH -->
+  <div class="bg-white rounded-2xl p-5 shadow space-y-3">
+    <h2 class="text-base font-semibold text-red-700">Senarai Majikan Tidak Patuh</h2>
+    <div id="senaraiMasalah" class="text-sm text-slate-700">Memuatkan...</div>
+  </div>
+
+</main>
+
+<script>
+const pegawai = requireLogin();
+pegawaiInfo.innerHTML = `Pegawai: <b>${pegawai.NamaPegawai}</b> (${pegawai.Peranan})`;
+document.getElementById("pegawai").value = pegawai.NamaPegawai;
+
+// Auto set tarikh hari ini
+document.getElementById("tarikh").value = new Date().toISOString().split("T")[0];
+
+// Fungsi Cari Majikan
+async function cariMajikan() {
+  const kod = kodMajikan.value.trim();
+  if (!kod) return alert("Sila masukkan Kod Majikan.");
+
+  const res = await apiGet({ action: "getMajikan", kodMajikan: kod });
+
+  if (!res || !res.NamaMajikan) {
+    namaMajikan.value = "";
+    alamatMajikan.value = "";
+    telefonMajikan.value = "";
+    alert("Kod Majikan tidak wujud dalam database.");
+    return;
+  }
+
+  namaMajikan.value = res.NamaMajikan;
+  alamatMajikan.value = res.Alamat || "";
+  telefonMajikan.value = res.NoTelefonWhatsApp || "";
+}
+
+// Simpan Pemeriksaan
+async function simpanPemeriksaan() {
+  if (!namaMajikan.value) return alert("Sila cari dan sahkan nama majikan dahulu.");
+
+  const data = {
+    KodMajikan: kodMajikan.value,
+    TarikhPemeriksaan: tarikh.value,
+    PegawaiPemeriksa: pegawai.NamaPegawai,
+    StatusPematuhan: status.value,
+    TunggakanAkta4: akta4.value,
+    TunggakanAkta800: akta800.value,
+    FCLBAkta4: fclb4.value,
+    FCLBAkta800: fclb800.value,
+    Catatan: catatan.value
+  };
+
+  const res = await apiPost("savePemeriksaan", data);
+  alert("Pemeriksaan disimpan.\nID: " + res.IDPemeriksaan);
+  loadMasalah();
+}
+
+// Load Senarai Majikan Bermasalah
+async function loadMasalah() {
+  const semua = await apiGet({ action: "getAllData" });
+  const pemeriksaan = semua.pemeriksaan;
+
+  let html = "";
+  let header = pemeriksaan[0];
+
+  let idxKod = header.indexOf("KodMajikan");
+  let idxNama = header.indexOf("NamaMajikan");
+  let idxStatus = header.indexOf("StatusPematuhan");
+
+  let tidakPatuh = pemeriksaan.filter((r, i) => i > 0 && r[idxStatus] === "Tidak Patuh");
+
+  if (tidakPatuh.length === 0) {
+    senaraiMasalah.innerHTML = "Tiada majikan bermasalah.";
+    return;
+  }
+
+  html += "<ul class='list-disc pl-5'>";
+  tidakPatuh.forEach(r => {
+    html += `<li><b>${r[idxKod]}</b> — ${r[idxNama] || "Nama Tidak Ditemui"}</li>`;
+  });
+  html += "</ul>";
+
+  senaraiMasalah.innerHTML = html;
+}
+
+loadMasalah();
+</script>
+
+</body>
+</html>

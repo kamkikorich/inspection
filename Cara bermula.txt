@@ -1,0 +1,5 @@
+1. login.html  →  log masuk pegawai
+2. index.html  →  dashboard utama
+3. pemeriksaan.html  →  rekod pemeriksaan
+4. laporan.html  →  laporan lengkap
+5. ai.html  →  AI analisis data

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard – PERKESO Keningau</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="config.js"></script>
+</head>
+
+<body class="bg-slate-100 min-h-screen">
+
+<header class="bg-sky-800 text-white">
+  <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between">
+    <div>
+      <h1 class="text-lg font-semibold">Sistem Pemeriksaan PERKESO Keningau</hh1>
+      <p class="text-xs text-sky-200">Akta 4 & Akta 800 • Pemeriksaan • Peringatan WhatsApp</p>
+    </div>
+    <button onclick="logout()" class="text-xs bg-white text-red-600 px-3 py-1 rounded-lg">
+      Log Keluar
+    </button>
+  </div>
+</header>
+
+<main class="max-w-5xl mx-auto px-4 py-4 space-y-4">
+
+  <!-- Pegawai Info -->
+  <div id="pegawaiInfo" class="text-sm text-slate-600"></div>
+
+  <!-- Menu -->
+  <div class="bg-white rounded-2xl p-4 shadow flex flex-wrap gap-2">
+    <button onclick="location.href='index.html'"
+      class="px-4 py-2 rounded-lg text-sm bg-sky-700 text-white">Dashboard</button>
+
+    <button onclick="location.href='pemeriksaan.html'"
+      class="px-4 py-2 rounded-lg text-sm bg-slate-200">Rekod Pemeriksaan</button>
+
+    <button onclick="location.href='laporan.html'"
+      class="px-4 py-2 rounded-lg text-sm bg-slate-200">Laporan</button>
+
+    <button onclick="location.href='ai.html'"
+      class="px-4 py-2 rounded-lg text-sm bg-slate-200">AI Pemeriksa</button>
+  </div>
+
+  <!-- Pendaftaran Majikan -->
+  <div class="bg-white rounded-2xl shadow p-4">
+    <h2 class="text-base font-semibold text-sky-800 mb-2">Pendaftaran Majikan</h2>
+    <p class="text-xs text-slate-500 mb-3">Cari atau kemaskini maklumat majikan.</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div>
+        <label class="text-xs text-slate-700">Kod Majikan</label>
+        <input id="kodMajikan" class="w-full border rounded-lg px-3 py-2 text-sm" />
+      </div>
+      <div class="flex items-end">
+        <button onclick="cariMajikan()"
+          class="w-full bg-slate-700 text-white py-2 rounded-lg text-xs">Cari / Muat Naik</button>
+      </div>
+    </div>
+
+    <div id="formMajikan" class="mt-4 space-y-3 hidden">
+      <div>
+        <label class="text-xs text-slate-700">Nama Majikan</label>
+        <input id="namaMajikan" class="w-full border rounded-lg px-3 py-2 text-sm" />
+      </div>
+
+      <div>
+        <label class="text-xs text-slate-700">Alamat</label>
+        <textarea id="alamat" class="w-full border rounded-lg px-3 py-2 text-sm"></textarea>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div>
+          <label class="text-xs text-slate-700">No WhatsApp</label>
+          <input id="telefon" class="w-full border rounded-lg px-3 py-2 text-sm" />
+        </div>
+
+        <div>
+          <label class="text-xs text-slate-700">Status</label>
+          <select id="statusMajikan" class="w-full border rounded-lg px-3 py-2 text-sm">
+            <option value="Aktif">Aktif</option>
+            <option value="Berhenti Sementara">Berhenti Sementara</option>
+            <option value="Tidak Aktif">Tidak Aktif</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="text-xs text-slate-700">Pegawai Penyemak</label>
+        <input id="pegawaiPenyemak" class="w-full border rounded-lg px-3 py-2 text-sm" />
+      </div>
+
+      <button onclick="simpanMajikan()"
+        class="bg-sky-700 text-white px-4 py-2 rounded-lg text-xs">Simpan Majikan</button>
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+const pegawai = requireLogin();
+pegawaiInfo.innerHTML = `Pegawai: <b>${pegawai.NamaPegawai}</b> (${pegawai.Peranan})`;
+
+async function cariMajikan() {
+  const kod = kodMajikan.value.trim();
+  if (!kod) return alert("Sila masukkan Kod Majikan.");
+
+  const res = await apiGet({ action: "getMajikan", kodMajikan: kod });
+  formMajikan.classList.remove("hidden");
+
+  namaMajikan.value = res?.NamaMajikan || "";
+  alamat.value = res?.Alamat || "";
+  telefon.value = res?.NoTelefonWhatsApp || "";
+  statusMajikan.value = res?.StatusMajikan || "Aktif";
+  pegawaiPenyemak.value = res?.PegawaiPenyemak || pegawai.NamaPegawai;
+}
+
+async function simpanMajikan() {
+  const data = {
+    KodMajikan: kodMajikan.value,
+    NamaMajikan: namaMajikan.value,
+    Alamat: alamat.value,
+    NoTelefonWhatsApp: telefon.value,
+    StatusMajikan: statusMajikan.value,
+    PegawaiPenyemak: pegawaiPenyemak.value
+  };
+
+  const r = await apiPost("saveMajikan", data);
+  alert("Maklumat majikan berjaya disimpan.");
+}
+</script>
+
+</body>
+</html>

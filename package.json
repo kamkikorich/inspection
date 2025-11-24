@@ -1,0 +1,14 @@
+{
+  "name": "perkeso-whatsapp-bot",
+  "version": "1.0.0",
+  "description": "WhatsApp Reminder Bot for PERKESO Keningau",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "whatsapp-web.js": "^1.21.0",
+    "node-fetch": "^3.3.2",
+    "qrcode-terminal": "^0.12.0"
+  }
+}

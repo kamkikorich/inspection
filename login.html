@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8" />
+<title>Login Pegawai – PERKESO</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="config.js"></script>
+</head>
+
+<body class="bg-slate-100 min-h-screen flex items-center justify-center">
+
+<div class="bg-white w-full max-w-sm shadow-xl rounded-2xl p-6">
+
+<h1 class="text-center text-xl font-semibold text-sky-800 mb-4">
+  Sistem Pemeriksaan PERKESO Keningau
+</h1>
+
+<label class="text-sm">Username</label>
+<input id="username" class="w-full border p-2 rounded mb-3" />
+
+<label class="text-sm">Password</label>
+<input id="password" type="password" class="w-full border p-2 rounded mb-4" />
+
+<div id="err" class="text-red-500 text-xs mb-2 hidden"></div>
+
+<button onclick="doLogin()" class="w-full bg-sky-700 text-white py-2 rounded">
+  Log Masuk
+</button>
+
+</div>
+
+<script>
+async function doLogin() {
+  const u = username.value;
+  const p = password.value;
+
+  const res = await apiGet({
+    action: "loginPegawai",
+    username: u,
+    password: p
+  });
+
+  if (!res.success) {
+    err.textContent = res.message;
+    err.classList.remove("hidden");
+    return;
+  }
+
+  localStorage.setItem("pegawai", JSON.stringify(res.pegawai));
+  window.location.href = "index.html";
+}
+</script>
+
+</body>
+</html>

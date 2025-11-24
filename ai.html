@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Pemeriksa – PERKESO Keningau</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="config.js"></script>
+</head>
+
+<body class="bg-slate-100 min-h-screen">
+
+<!-- HEADER -->
+<header class="bg-sky-800 text-white shadow">
+  <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+    <div>
+      <h1 class="text-lg font-semibold">AI Pemeriksa PERKESO Keningau</h1>
+      <p class="text-xs text-sky-200">Dikuasakan oleh Gemini 2.5 Flash</p>
+    </div>
+
+    <button onclick="location.href='index.html'"
+      class="text-xs bg-white text-sky-800 px-3 py-1 rounded">
+      Kembali
+    </button>
+  </div>
+</header>
+
+<!-- CONTENT -->
+<main class="max-w-5xl mx-auto px-4 py-4 space-y-6">
+
+  <!-- Pegawai Info -->
+  <div id="pegawaiInfo" class="text-sm text-slate-600"></div>
+
+  <!-- Input Prompt -->
+  <div class="bg-white rounded-2xl shadow p-4">
+    <h2 class="text-base font-bold text-sky-800 mb-2">Tanya AI Berkenaan Pemeriksaan</h2>
+    <p class="text-xs text-slate-500 mb-2">
+      Contoh soalan:
+      <br>– “Siapa pegawai paling banyak pemeriksaan?”
+      <br>– “Berapa jumlah kutipan Akta 4 bulan ini?”
+      <br>– “Senaraikan majikan yang tidak patuh.”
+    </p>
+
+    <textarea id="question"
+      class="w-full border rounded-lg p-3 text-sm"
+      placeholder="Tulis soalan di sini..."></textarea>
+
+    <button onclick="askAI()"
+      class="mt-2 bg-sky-700 hover:bg-sky-800 text-white px-4 py-2 text-xs rounded-lg">
+      Hantar Soalan
+    </button>
+  </div>
+
+  <!-- OUTPUT AI -->
+  <div id="responseBox"
+    class="bg-white rounded-2xl shadow p-4 text-sm hidden whitespace-pre-line"></div>
+
+</main>
+
+
+<script>
+// Letak nama pegawai
+const pegawai = requireLogin();
+pegawaiInfo.innerHTML = `Pegawai: <b>${pegawai.NamaPegawai}</b> (${pegawai.Peranan})`;
+
+// ======== AI FUNCTION ========
+async function askAI() {
+  const q = question.value.trim();
+  if (!q) {
+    alert("Sila tulis soalan.");
+    return;
+  }
+
+  responseBox.classList.remove("hidden");
+  responseBox.innerHTML = "⏳ Sedang memproses soalan anda...";
+
+  // Fetch data keseluruhan dari API Apps Script
+  const rawData = await apiGet({ action: "getAllData" });
+
+  const majikan = rawData.majikan;
+  const pemeriksaan = rawData.pemeriksaan;
+
+  // PROMPT AI
+  const prompt = `
+Anda ialah "AI Pemeriksa PERKESO Keningau".
+Jawab semua soalan berdasarkan DATA di bawah dan polisi Akta 4 & Akta 800.
+
+---
+
+DATA MAJIKAN:
+${JSON.stringify(majikan)}
+
+DATA PEMERIKSAAN:
+${JSON.stringify(pemeriksaan)}
+
+---
+
+SOALAN PENGGUNA:
+"${q}"
+
+---
+
+Arahan:
+1. Jawab dalam Bahasa Malaysia formal PERKESO.
+2. Jika soalan melibatkan kiraan, kira dengan tepat.
+3. Jika soalan statistik pegawai, kira berdasarkan kolum:
+   • PegawaiPemeriksa
+   • TunggakanAkta4
+   • TunggakanAkta800
+   • FCLBAkta4
+   • FCLBAkta800
+4. Jika soalan tentang majikan tidak patuh:
+   • Cari StatusPematuhan = "Tidak Patuh"
+5. Jika tiada data untuk soalan, jawab:
+   "Tiada data untuk soalan ini."
+
+---
+
+Sekarang berikan jawapan yang paling tepat:
+`;
+
+  // Call API Gemini 2.5 Flash
+  const res = await fetch(
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + GEMINI_KEY,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }]}]
+      })
+    }
+  );
+
+  const json = await res.json();
+  const answer = json?.candidates?.[0]?.content?.parts?.[0]?.text || "Tiada jawapan.";
+
+  responseBox.innerHTML = answer;
+}
+</script>
+
+</body>
+</html>
